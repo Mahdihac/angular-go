@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  go-backend:
+    image: mahdihch/go-backend:2.0
+    container_name: go-backend
+    ports:
+      - "8080:8080"
+    networks:
+      - backend
+      - frontend
+  
+    depends_on:
+      - postgres
+ 
+  postgres:
+    image: mahdihch/postgres:latest
+    networks:
+      - backend
+    restart: always
+    container_name: postgres
+    environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: user
+        POSTGRES_DB: database
+        PGDATA: /var/lib/postgresql/data/pgdata
+
+
+  angular-service: # name of the first service
+    image: mahdihch/angular-frontend:2.0
+    container_name: angular-frontend
+   
+    volumes: # Volume binding
+      - './:/usr/src'
+    ports:
+      - "4200:80" # specify port forewarding
+    networks:
+      -  frontend
+    depends_on:
+      - go-backend
+
+
+networks:
+  frontend:
+  backend:

@@ -1,0 +1,17 @@
+FROM node:16.16.0 as builder
+
+RUN mkdir -p /app
+
+WORKDIR /app
+
+COPY . .
+
+RUN npm install
+RUN npm run build --prod
+EXPOSE 80
+ENTRYPOINT  ["npm", "start"]
+
+FROM nginx:alpine
+COPY src/nginx/default.conf /etc/nginx/conf/default.conf
+
+COPY /dist/angular-frontend  /usr/share/nginx/html
