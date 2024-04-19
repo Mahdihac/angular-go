@@ -38,6 +38,7 @@ kind: Service
 metadata:
   name: angular-frontend
 spec:
+  type: NodePort
   selector: # pod labels should match these
     app: angular-frontend
     tier: frontend
@@ -45,7 +46,7 @@ spec:
   - protocol: "TCP"
     port: 4200
     targetPort: 4200
-    NodePort: 32000
+    nodePort: 30007
 ---
 #### Backend-configmap.yaml ####
 # ConfigMap to expose configuration related to backend 
@@ -206,7 +207,7 @@ metadata:
   name: postgres-pv
 spec:
   capacity:
-    storage: 1Gi
+    storage: 5Gi
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
