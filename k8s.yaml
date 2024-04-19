@@ -1,0 +1,241 @@
+#### Frontend-deployment.yaml ####
+# Configure 'Deployment' of frontend
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: angular-frontend
+  labels: # pod labels should match these
+    app: angular-frontend
+    tier: frontend
+spec:
+  replicas: 2  # number of replicas of frontend 
+  selector:
+    matchLabels:
+      app: angular-frontend
+      tier: frontend
+  template:
+    metadata:
+      labels: # Must match 'Service' and 'Deployment' labels
+        app: angular-frontend
+        tier: frontend
+    spec:
+      containers:
+      - name: angular-frontend
+        image: mahdihch/angular-frontend:2.0 # docker image of frontend 
+        env: # Setting Environmental Variables
+          - name: SERVER_URI # Setting Backend URI from configMap
+            valueFrom:
+              configMapKeyRef:
+                name: backend-conf # Name of configMap
+                key: server-uri
+        ports:
+        - containerPort: 4200
+---
+#### Frontend-service.yaml ####
+# Define 'Service' to expose Frontend deployment
+apiVersion: v1
+kind: Service
+metadata:
+  name: angular-frontend
+spec:
+  selector: # pod labels should match these
+    app: angular-frontend
+    tier: frontend
+  ports:
+  - protocol: "TCP"
+    port: 4200
+    targetPort: 4200
+    NodePort: 32000
+---
+#### Backend-configmap.yaml ####
+# ConfigMap to expose configuration related to backend 
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-conf # name of configMap
+data:
+  server-uri: "http://go-backend.default.svc.cluster.local:8080" # external ip of backend  'Service'
+---
+#### Backend-deployment.yaml ####
+# Configure 'Deployment' of backend 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-backend
+  labels:
+    app: go-backend
+    tier: backend
+spec:
+  replicas: 2    # Number of replicas of backend to be deployed
+  selector:
+    matchLabels: # backend pod labels should match these
+      app: go-backend
+      tier: backend
+  template:
+    metadata:
+      labels: # Must match 'Service' and 'Deployment' labels
+        app: go-backend
+        tier: backend
+    spec:
+      containers:
+      - name: go-backend
+        image: mahdihch/go-backend:2.0   # docker image of backend
+        env:   # Setting Environmental Variables
+          - name: DB_HOST   # Setting Database host address from configMap
+            valueFrom:
+              configMapKeyRef:
+                name: db-conf  # name of configMap
+                key: host
+          - name: DB_NAME  # Setting Database name from configMap
+            valueFrom:
+              configMapKeyRef:
+                name: db-conf
+                key: name
+          - name: DB_USERNAME  # Setting Database username from Secret
+            valueFrom:
+              secretKeyRef:
+                name: db-credentials # Secret Name
+                key: username
+          - name: DB_PASSWORD # Setting Database password from Secret
+            valueFrom:
+              secretKeyRef:
+                name: db-credentials
+                key: password
+        ports:
+        - containerPort: 8080
+---
+#### backend-service.yaml ####
+# Define 'Service' to expose backend deployment
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-backend
+spec:
+  selector:  # backend pod labels should match these
+    app: go-backend
+    tier: backend
+  ports:
+  - protocol: "TCP"
+    port: 8080
+    targetPort: 8080 # use NodePort, if you are not running Kubernetes on cloud
+  type: NodePort
+---
+#### postgres-db.yaml ####
+# Define a 'Service' To Expose PostgreSQL to Other Services
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres  # DNS name
+  labels:
+    app: postgres
+    tier: database
+spec:
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  selector:       # PostgreSQL Pod Should contain same labels
+    app: postgres
+    tier: database
+---
+# Define a 'Persistent Volume Claim' (PVC) for PostgreSQL Storage, dynamically provisioned by cluster
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgresql-pv-claim # name of PVC essential for identifying the storage data
+  labels:
+    app: postgres
+    tier: database
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+# Configure 'Deployment' of PostgreSQL server
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+    tier: database
+spec:
+  selector: # PostgreSQL Pod Should contain same labels
+    matchLabels:
+      app: postgres
+      tier: database
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels: # Must match 'Service' and 'Deployment' selectors
+        app: postgres
+        tier: database
+    spec:
+      containers:
+      - image: mahdihch/postgres:latest # image from docker-hub
+        name: postgres
+        env:
+        - name: POSTGRES_PASSWORD # Setting Password for postgresql user
+          valueFrom:
+            secretKeyRef:
+              name: db-root-credentials # Name of the 'Secret'
+              key: password   # 'key' inside the Secret which contains required 'value'
+        - name: POSTGRES_DB # Setting Database Name
+          valueFrom:
+            configMapKeyRef:
+              name: db-conf
+              key: name
+        ports:
+        - containerPort: 5432
+          name: postgres
+        volumeMounts:        # Mounting volume obtained from Persistent Volume Claim
+        - name: postgresql-persistent-storage
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: postgresql-persistent-storage # Obtaining 'volume' from PVC
+        persistentVolumeClaim:
+          claimName: postgresql-pv-claim
+---
+#### pv.yaml ####
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/var/lib/postgresql/data"
+---
+#### postgres-configmap.yaml ####
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-conf  # name of ConfigMap, referenced in other files
+data:
+  host: postgres   # host address of PostgreSQL server, we are using DNS of Service
+  name: database # name of the database for application
+---
+#### db-root-credentials-secret.yaml ####
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-root-credentials # Name of the Secret
+data:
+  password: dXNlcg== # base64 encoded 'root' password
+---
+#### db-credentials-secret.yaml ####
+# Define 'Secret' to store db-credentials
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-credentials # Name of the 'Secret'
+data:
+  username: cG9zdGdyZXM=  # base64 encoded 'Secret' username
+  password: dXNlcg==  # base64 encoded 'Secret' password
