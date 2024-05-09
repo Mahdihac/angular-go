@@ -1,67 +1,119 @@
 pipeline {
     agent any
-
     environment {
-        DOCKER_REGISTRY_CREDENTIALS_FRONTEND = 'docker-hub-credentials-frontend'
-        DOCKER_REGISTRY_CREDENTIALS_BACKEND = 'docker-hub-credentials-backend'
-        DOCKER_REGISTRY_CREDENTIALS_DATABASE = 'docker-hub-credentials-database'
-        KUBECONFIG = credentials('kubeconfig-credentials')
+        REPORT_PATH = 'zap-reports'
+        REPORT_NAME = 'report.html'
     }
-
     stages {
-        stage('Build') {
+        stage('Checkout Git') {
             steps {
                 script {
-                    // Checkout source code from Git repository
-                    checkout scm
-
-                    // Build Angular frontend
-                    withCredentials([usernamePassword(credentialsId: DOCKER_REGISTRY_CREDENTIALS_FRONTEND, usernameVariable: 'DOCKER_USERNAME_FRONTEND', passwordVariable: 'DOCKER_PASSWORD_FRONTEND')]) {
-                        sh 'cd frontend && npm install && npm run build'
-                        sh 'docker build -t your-docker-hub-username/frontend .'
-                        sh 'docker login -u $DOCKER_USERNAME_FRONTEND -p $DOCKER_PASSWORD_FRONTEND'
-                        sh 'docker push your-docker-hub-username/frontend'
+                    git branch: 'main',
+                    url: 'https://github.com/Mahdihac/angular-go.git',
+                    credentialsId: 'test'
+                } 
+            }
+        }
+        stage('NPM Build') {
+            steps {
+                script {
+                    sh 'npm cache clean --force'
+                    sh 'npm install --legacy-peer-deps --verbose'
+                    sh 'npm run build'
+                }
+            }
+        }
+        stage('Run Tests') {
+            steps {
+                script {
+                
+                def appPath = "/var/lib/jenkins/workspace/angular-frontend"
+                docker.image('opensecurity/nodejsscan:latest').inside('--privileged -u root:root') {
+                    sh 'nodejsscan --json .'
+                }
+                }
+            }
+        }
+        stage('Dependencies Test with SNYK') {
+            steps {
+                snykSecurity(
+                    snykInstallation: 'snyk@latest',
+                    snykTokenId: 'snyk-token',
+                    failOnIssues: 'false',
+                    monitorProjectOnBuild: 'true',
+                    additionalArguments: '--all-projects --d'
+                )
+            }
+        }
+        stage('Analysis with SEMGREP') {
+            steps {
+                //sh "docker run -v ${WORKSPACE}:/src --workdir /src semgrep/semgrep --config p/ci"
+                sh "docker run -e SEMGREP_APP_TOKEN=${SEMGREP_APP_TOKEN} --rm -v \${PWD}:/src semgrep/semgrep semgrep ci "
+            }
+        }
+        stage('Analysis with SONARQUBE') {
+            steps {
+                script {
+                    withSonarQubeEnv(installationName: 'sonarqube-scanner') {
+                        sh "/opt/sonar-scanner/bin/sonar-scanner -Dsonar.projectKey=${ANGULARKEY} -Dsonar.sources=. -Dsonar.host.url=${SONARURL} -Dsonar.login=${ANGLOGIN}"
                     }
-
-                    // Build Golang backend
-                    withCredentials([usernamePassword(credentialsId: DOCKER_REGISTRY_CREDENTIALS_BACKEND, usernameVariable: 'DOCKER_USERNAME_BACKEND', passwordVariable: 'DOCKER_PASSWORD_BACKEND')]) {
-                        sh 'cd backend && go build'
-                        sh 'docker build -t your-docker-hub-username/backend .'
-                        sh 'docker login -u $DOCKER_USERNAME_BACKEND -p $DOCKER_PASSWORD_BACKEND'
-                        sh 'docker push your-docker-hub-username/backend'
+                }
+            }
+        }
+        stage('Containerization with DOCKER') {
+            steps {
+                script {
+                    sh "docker build -t ${STAGING_TAG} ."
+                    withCredentials([usernamePassword(credentialsId: 'tc', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                        sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}"
+                        sh "docker push ${STAGING_TAG}"
+                        // sh "docker pull ${STAGING_TAG}"
                     }
-
-                    // Build database image (if applicable)
-                    // Replace placeholders accordingly
                 }
             }
         }
-        
-        stage('Test') {
+        stage('Image Test with TRIVY') {
+            steps {
+                sh "docker run --rm aquasec/trivy image --exit-code 1 --no-progress ${STAGING_TAG}"
+                //sh "docker run --rm aquasec/trivy:latest image balkissd/angular:v1.0.0"
+            }
+        }
+        stage('Pull Docker Image on Remote Server') {
+            steps {
+                sshagent(['ssh-agent']) {
+                    sh 'ssh -o StrictHostKeyChecking=no vagrant@192.168.56.7 "docker run -d --name front -p 80:80 balkissd/angular:v1.0.0"'
+                }
+            }
+        }
+        stage('Container Test with SNYK') {
+            steps {
+                snykSecurity(
+                    snykInstallation: 'snyk@latest',
+                    snykTokenId: 'snyk-token',
+                    failOnIssues: 'false',
+                    monitorProjectOnBuild: 'true',
+                    additionalArguments: '--container ${STAGING_TAG} -d'
+                )
+            }
+        }
+        stage('OWASP ZAP Full Scan') {
             steps {
                 script {
-                    // Run tests (if applicable)
-                    // For example: sh 'cd backend && go test'
+                    sh "rm -rf /var/lib/jenkins/workspace/Front/report"
+                    sh "mkdir -p /var/lib/jenkins/workspace/Front/report"
+                    sh "chmod 777 /var/lib/jenkins/workspace/Front/report"
+                    sh "sudo docker run -v /var/lib/jenkins/workspace/Front:/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://192.168.56.7:80/ -r report/testreport.html || true"
                 }
             }
         }
-
-        stage('Deploy') {
+        stage('Run Nuclei') {
             steps {
-                script {
-                    // Deploy to Kubernetes cluster
-                    sh 'kubectl --kubeconfig=$KUBECONFIG apply -f kube-manifests/'
-                }
+                sh "nuclei -u http://192.168.56.7:80 -o nuclei_report.json"
+
             }
         }
-    }
+         
 
-    post {
-        success {
-            echo 'Deployment successful!'
-        }
-        failure {
-            echo 'Deployment failed!'
-        }
+
     }
 }
