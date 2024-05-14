@@ -81,7 +81,7 @@ pipeline {
         stage('Pull Docker Image on Remote Server') {
             steps {
                 sshagent(['ssh-agent']) {
-                    sh 'ssh -o StrictHostKeyChecking=no vagrant@192.168.56.7 "docker run -d --name front -p 80:80 balkissd/angular:v1.0.0"'
+                    sh 'ssh -o StrictHostKeyChecking=no vagrant@192.168.131.135 "docker run -d --name frontend -p 80:80 mahdihch/angular-frontend:2.0"'
                 }
             }
         }
@@ -102,13 +102,13 @@ pipeline {
                     sh "rm -rf /var/lib/jenkins/workspace/Front/report"
                     sh "mkdir -p /var/lib/jenkins/workspace/Front/report"
                     sh "chmod 777 /var/lib/jenkins/workspace/Front/report"
-                    sh "sudo docker run -v /var/lib/jenkins/workspace/Front:/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://192.168.56.7:80/ -r report/testreport.html || true"
+                    sh "sudo docker run -v /var/lib/jenkins/workspace/Front:/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://192.168.131.135:80/ -r report/testreport.html || true"
                 }
             }
         }
         stage('Run Nuclei') {
             steps {
-                sh "nuclei -u http://192.168.56.7:80 -o nuclei_report.json"
+                sh "nuclei -u http://192.168.131.135:80 -o nuclei_report.json"
 
             }
         }
