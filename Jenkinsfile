@@ -26,7 +26,7 @@ pipeline {
             steps {
                 script {
                 
-                def appPath = "/var/lib/jenkins/workspace/angular-frontend"
+                def appPath = "/var/lib/jenkins/workspace/angular-go/angular-frontend"
                 docker.image('opensecurity/nodejsscan:latest').inside('--privileged -u root:root') {
                     sh 'nodejsscan --json .'
                 }
