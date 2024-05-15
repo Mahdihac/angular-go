@@ -9,8 +9,7 @@ pipeline {
             steps {
                 script {
                     git branch: 'main',
-                    url: 'https://github.com/Mahdihac/angular-go.git',
-                    credentialsId: 'test'
+                    url: 'https://github.com/Mahdihac/angular-go.git'
                 } 
             }
         }
