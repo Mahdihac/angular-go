@@ -3,6 +3,8 @@ pipeline {
     environment {
         REPORT_PATH = 'zap-reports'
         REPORT_NAME = 'report.html'
+        NVM_DIR = "${WORKSPACE}/.nvm"
+        NODE_VERSION = "16.14.0"
     }
     stages {
         stage('Checkout Git') {
@@ -13,11 +15,25 @@ pipeline {
                 } 
             }
         }
+                stage('Install nvm and Node.js') {
+            steps {
+                sh '''
+                    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+                    export NVM_DIR=$NVM_DIR
+                    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+                    nvm install $NODE_VERSION
+                    nvm use $NODE_VERSION
+                    
+                    # Verify the installation
+                    node -v
+                    npm -v
+                '''
+            }
+        }
         stage('NPM Build') {
             steps {
                 dir('angular-frontend') {
-                    sh 'nvm install 16.14.0'
-                    sh 'node -v'
+                    sh 'nvm use $NODE_VERSION'
                     sh 'npm cache clean --force'
                     sh 'npm install --legacy-peer-deps --verbose'
                     sh 'npm run build'
