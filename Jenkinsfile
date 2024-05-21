@@ -16,8 +16,8 @@ pipeline {
         stage('NPM Build') {
             steps {
                 dir('angular-frontend') {
+                    sh 'nvm install 16.14.0'
                     sh 'node -v'
-                    sh 'npm -v'
                     sh 'npm cache clean --force'
                     sh 'npm install --legacy-peer-deps --verbose'
                     sh 'npm run build'
