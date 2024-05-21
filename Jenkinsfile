@@ -3,7 +3,7 @@ pipeline {
     environment {
         REPORT_PATH = 'zap-reports'
         REPORT_NAME = 'report.html'
-        NVM_DIR = "${WORKSPACE}/.nvm"
+        NVM_DIR = "$HOME/.nvm"
         NODE_VERSION = "16.14.0"
     }
     stages {
