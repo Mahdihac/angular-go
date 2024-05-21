@@ -22,8 +22,6 @@ pipeline {
                     sh 'node -v'
                     sh 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash'
                     sh 'export NVM_DIR=$NVM_DIR'
-                    sh 'nvm install $NODE_VERSION'
-                    sh 'nvm use $NODE_VERSION'
                     sh 'npm cache clean --force'
                     sh 'npm install --legacy-peer-deps --verbose'
                     sh 'npm run build'
