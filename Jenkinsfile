@@ -20,7 +20,6 @@ pipeline {
                 sh '''
                     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
                     export NVM_DIR=$NVM_DIR
-                    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
                     nvm install $NODE_VERSION
                     nvm use $NODE_VERSION
                     
