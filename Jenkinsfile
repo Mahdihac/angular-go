@@ -36,8 +36,6 @@ pipeline {
                     sh 'sudo su'
                     sh 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash'
                     sh 'export NVM_DIR=$NVM_DIR'
-                    sh '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'
-                    sh '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"'
                     sh 'nvm install $NODE_VERSION'
                     sh 'nvm use $NODE_VERSION'
                     sh 'npm cache clean --force'
