@@ -15,25 +15,9 @@ pipeline {
                 } 
             }
         }
-        stage('Install nvm and Node.js') {
-            steps {
-                sh '''
-                    sudo su
-                    curl -S -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-                    export NVM_DIR=$NVM_DIR
-                    nvm install $NODE_VERSION
-                    nvm use $NODE_VERSION
-                    
-                    # Verify the installation
-                    node -v
-                    npm -v
-                '''
-            }
-        }
         stage('NPM Build') {
             steps {
                 dir('angular-frontend') {
-                    sh 'sudo su'
                     sh 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash'
                     sh 'export NVM_DIR=$NVM_DIR'
                     sh 'nvm install $NODE_VERSION'
