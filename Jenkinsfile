@@ -18,6 +18,7 @@ pipeline {
         stage('NPM Build') {
             steps {
                 dir('angular-frontend') {
+                    sh 'node -v'
                     sh 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash'
                     sh 'export NVM_DIR=$NVM_DIR'
                     sh 'nvm install $NODE_VERSION'
