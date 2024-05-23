@@ -3,6 +3,12 @@ pipeline {
     environment {
         REPORT_PATH = 'zap-reports'
         REPORT_NAME = 'report.html'
+        // Define the NVM version you want to install
+        NVM_VERSION = 'v0.39.4'
+        // Define the Node.js version you want to install
+        NODE_VERSION = '14.17.0'
+        // Define the directory for NVM installation
+        NVM_DIR = "${WORKSPACE}/.nvm"
         
         
     }
