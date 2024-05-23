@@ -19,8 +19,8 @@ pipeline {
             steps {
                 dir('/var/lib/jenkins/workspace/userManagement/angular-frontend') {
                     sh "node -v"
-                    sh "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash"
-                    sh "nvm install 18"
+                    sh "whoami"
+                    sh "sudo apt install nodejs"
                     sh "node -v"
                     sh "npm cache clean --force"
                     sh "npm install --legacy-peer-deps --verbose"
