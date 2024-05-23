@@ -18,7 +18,7 @@ pipeline {
         stage('NPM Build') {
             steps {
                 script {
-                    def appPath = "/var/lib/jenkins/workspace/userManagement/angular-frontend"
+                    sh 'cd /var/lib/jenkins/workspace/userManagement/angular-frontend'
                     sh 'node -v'
                     sh 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash'
                     sh 'export NVM_DIR=$NVM_DIR'
