@@ -20,13 +20,11 @@ pipeline {
         }
         stage('NPM Build') {
             steps {
-                script {
-                    dir("/var/lib/jenkins/workspace/userManagement/angular-frontend")
-                    {
-                        sh "npm cache clean --force"
-                        sh "npm install --legacy-peer-deps --verbose"
-                        sh "npm run build"
-                    }
+                dir("/var/lib/jenkins/workspace/userManagement/angular-frontend")
+                {
+                    sh "npm cache clean --force"
+                    sh "npm install --legacy-peer-deps --verbose"
+                    sh "npm run build"
                 }
             }
         }
