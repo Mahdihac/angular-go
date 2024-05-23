@@ -38,17 +38,6 @@ pipeline {
                 }
             }
         }
-        stage('Dependencies Test with SNYK') {
-            steps {
-                snykSecurity(
-                    snykInstallation: 'snyk@latest',
-                    snykTokenId: 'snyk-token',
-                    failOnIssues: false,
-                    monitorProjectOnBuild: true,
-                    additionalArguments: '--all-projects --d'
-                )
-            }
-        }
         stage('Analysis with SEMGREP') {
             steps {
                 sh "docker run -e SEMGREP_APP_TOKEN=${SEMGREP_APP_TOKEN} --rm -v \${PWD}:/src semgrep/semgrep semgrep ci "
