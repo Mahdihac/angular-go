@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    tools {
+        nodejs '18.20.3'
+    }
 
     environment {
         REPORT_PATH = 'zap-reports'
