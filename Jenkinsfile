@@ -17,19 +17,17 @@ pipeline {
         }
         stage('NPM Build') {
             steps {
-                script {
-                    sh ''''
-                    cd /var/lib/jenkins/workspace/userManagement/angular-frontend
-                    node -v
-                    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-                    export NVM_DIR=$NVM_DIR
-                    npm cache clean --force
-                    npm install --legacy-peer-deps --verbose
-                    npm run build
-                    ''''
+                dir('/var/lib/jenkins/workspace/userManagement/angular-frontend') {
+                    sh "node -v"
+                    sh "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash"
+                    sh "export NVM_DIR=$NVM_DIR"
+                    sh "npm cache clean --force"
+                    sh "npm install --legacy-peer-deps --verbose"
+                    sh "npm run build"
                 }
             }
         }
+
         stage('Run Tests') {
             steps {
                 script {
