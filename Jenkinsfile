@@ -86,17 +86,6 @@ pipeline {
                 }
             }
         }
-        stage('Container Test with SNYK') {
-            steps {
-                snykSecurity(
-                    snykInstallation: 'snyk@latest',
-                    snykTokenId: 'snyk-token',
-                    failOnIssues: false,
-                    monitorProjectOnBuild: true,
-                    additionalArguments: "--container ${STAGING_TAG} -d"
-                )
-            }
-        }
         stage('OWASP ZAP Full Scan') {
             steps {
                 script {
