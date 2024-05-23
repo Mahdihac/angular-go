@@ -4,12 +4,6 @@ pipeline {
     environment {
         REPORT_PATH = 'zap-reports'
         REPORT_NAME = 'report.html'
-        // Define the NVM version you want to install
-        NVM_VERSION = 'v0.39.4'
-        // Define the Node.js version you want to install
-        NODE_VERSION = '14.17.0'
-        // Define the directory for NVM installation
-        NVM_DIR = "${WORKSPACE}/.nvm"
     }
 
     stages {
@@ -24,17 +18,6 @@ pipeline {
         stage('NPM Build') {
             steps {
                 script {
-                    // Download and install NVM
-                    sh "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh | bash"
-                    // Source NVM
-                    sh "export NVM_DIR='${NVM_DIR}'"
-                    sh "[ -s '${NVM_DIR}/nvm.sh' ] && \\. '${NVM_DIR}/nvm.sh'"
-                    sh "nvm install ${NODE_VERSION}"
-                    sh "nvm use ${NODE_VERSION}"
-                    sh "nvm alias default ${NODE_VERSION}"
-                    // Verify Node.js and npm installation
-                    sh "node -v"
-                    sh "npm -v"
                     sh "npm cache clean --force"
                     sh "npm install --legacy-peer-deps --verbose"
                     sh "npm run build"
