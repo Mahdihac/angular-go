@@ -18,10 +18,34 @@ pipeline {
         stage('NPM Build') {
             steps {
                 dir('/var/lib/jenkins/workspace/userManagement/angular-frontend') {
-                    sh "node -v"
-                    sh "whoami"
-                    sh "sudo apt install nodejs"
-                    sh "node -v"
+                script {
+                    // Download and install NVM
+                    sh '''
+                    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh | bash
+                    '''
+
+                    // Source NVM
+                    sh '''
+                    export NVM_DIR="${NVM_DIR}"
+                    [ -s "${NVM_DIR}/nvm.sh" ] && \\. "${NVM_DIR}/nvm.sh"
+                    '''
+
+                    // Install Node.js using NVM
+                    sh '''
+                    export NVM_DIR="${NVM_DIR}"
+                    [ -s "${NVM_DIR}/nvm.sh" ] && \\. "${NVM_DIR}/nvm.sh"
+                    nvm install ${NODE_VERSION}
+                    nvm use ${NODE_VERSION}
+                    nvm alias default ${NODE_VERSION}
+                    '''
+
+                    // Verify Node.js and npm installation
+                    sh '''
+                    export NVM_DIR="${NVM_DIR}"
+                    [ -s "${NVM_DIR}/nvm.sh" ] && \\. "${NVM_DIR}/nvm.sh"
+                    node -v
+                    npm -v
+                    '''
                     sh "npm cache clean --force"
                     sh "npm install --legacy-peer-deps --verbose"
                     sh "npm run build"
