@@ -18,6 +18,30 @@ pipeline {
                 } 
             }
         }
+        stage('Install Gitleaks') {
+            steps {
+                sh '''
+                if ! command -v gitleaks &> /dev/null
+                then
+                    echo "Gitleaks could not be found, installing..."
+                    curl -s https://api.github.com/repos/zricethezav/gitleaks/releases/latest | grep browser_download_url | grep linux | cut -d '"' -f 4 | wget -qi -
+                    tar -xvf gitleaks*.tar.gz
+                    sudo mv gitleaks /usr/local/bin/
+                fi
+                '''
+            }
+        }
+
+        stage('Run Gitleaks') {
+            steps {
+                script {
+                    def gitleaksStatus = sh script: 'gitleaks detect --source . --exit-code 1', returnStatus: true
+                    if (gitleaksStatus != 0) {
+                        error "Gitleaks detected secrets in the code!"
+                    }
+                }
+            }
+        }
         stage('NPM Build') {
             steps {
                 dir("/var/lib/jenkins/workspace/userManagement/angular-frontend")
@@ -28,6 +52,7 @@ pipeline {
                 }
             }
         }
+        
        /* stage('Run Tests') {
             steps {
                 script {
