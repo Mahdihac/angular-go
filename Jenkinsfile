@@ -45,6 +45,12 @@ pipeline {
                 }
             }
         }
+        post {
+            always {
+                archiveArtifacts artifacts: 'snyk-report.json', allowEmptyArchive: true
+                cleanWs()
+            }
+        }
         stage('NPM Build') {
             steps {
                 dir("/var/lib/jenkins/workspace/userManagement/angular-frontend")
