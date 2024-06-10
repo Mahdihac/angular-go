@@ -48,7 +48,7 @@ pipeline {
                     sh "npm install -g snyk"
                     sh "pwd"
                     sh "snyk auth ${SNYK_KEY}"
-                    sh "snyk test --file=angular-frontend/package.json --severity-threshold=low --json  | tee snyk-report.json"
+                    sh "snyk test --file=package.json --severity-threshold=low --json  | tee snyk-report.json"
                     sh "cat snyk-report.json"
                 }
             }
