@@ -7,6 +7,8 @@ pipeline {
     environment {
         REPORT_PATH = 'zap-reports'
         REPORT_NAME = 'report.html'
+        SNYK_API = 'https://api.snyk.io'
+        SNYK_TOKEN = credentials('org-snyk-api-token') // Assuming you have stored your Snyk API token in Jenkins credentials
     }
 
     stages {
