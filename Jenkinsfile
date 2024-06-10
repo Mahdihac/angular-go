@@ -8,7 +8,6 @@ pipeline {
         REPORT_PATH = 'zap-reports'
         REPORT_NAME = 'report.html'
         SNYK_API = 'https://api.snyk.io'
-        SNYK_TOKEN = credentials('org-snyk-api-token') // Assuming you have stored your Snyk API token in Jenkins credentials
     }
 
     stages {
@@ -30,14 +29,17 @@ pipeline {
                 }
             }
         }
-        stage('SCA') {
-          steps {
-            echo 'Testing snyk'
-            snykSecurity(
-              snykInstallation: 'snyk-install',
-              snykTokenId: 'org-snyk-api-token',
-            )
-          }
+        stage('Run Snyk Security Scan') {
+            steps {
+                withCredentials([string(credentialsId: 'snyk-api-token', variable: 'SNYK_TOKEN')]) {
+                    script {
+                        def snykStatus = sh script: 'snyk auth ${SNYK_TOKEN} && snyk test --json --severity-threshold=low', returnStatus: true
+                        if (snykStatus != 0) {
+                            error "Snyk Security scan failed. Check the logs for details."
+                        }
+                    }
+                }
+            }
         }
         stage('NPM Build') {
             steps {
