@@ -53,7 +53,7 @@ pipeline {
                 }
             }
         }
-                stage('Run SAST tests') {
+        stage('Run SAST tests') {
             steps {
                 script {
                     def appPath = "/var/lib/jenkins/workspace/userManagement/angular-frontend"
@@ -73,17 +73,6 @@ pipeline {
                 }
             }
         }*/
-        
-        stage('Run SAST tests') {
-            steps {
-                script {
-                    def appPath = "/var/lib/jenkins/workspace/userManagement/angular-frontend"
-                    docker.image('opensecurity/nodejsscan:latest').inside('--privileged -u root:root') {
-                        sh 'nodejsscan --json .'
-                    }
-                }
-            } 
-        }
        /* stage('Analysis with SEMGREP') {
             steps {
                 sh "docker run -e SEMGREP_APP_TOKEN=${SEMGREP_APP_TOKEN} --rm -v \${PWD}:/src semgrep/semgrep semgrep ci "
