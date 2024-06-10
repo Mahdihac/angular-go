@@ -48,7 +48,7 @@ pipeline {
                             snykTokenId: 'org-snyk-api-token',
                             targetFile: 'angular-frontend/package.json',
                             failOnIssues: true,
-                            reportFile: '*_snyk_report.json'
+                            severity: 'medium' 
                             )
                        
                     }
