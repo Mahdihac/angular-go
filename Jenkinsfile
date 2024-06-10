@@ -41,25 +41,27 @@ pipeline {
         }
         stage('Run Snyk Security Scan') {
             steps {
-                withCredentials([string(credentialsId: 'Snyk-Api', variable: '96da1bef-797d-4ae9-8f68-0aeb73ac7229')]) {
-                    script {
-                        snykSecurity(
-                            snykInstallation: 'snyk-install',
-                            snykTokenId: 'org-snyk-api-token',
-                            targetFile: 'angular-frontend/package.json',
-                            failOnIssues: true,
-                            severity: 'medium' 
-                            )
-                       
+                dir("/var/lib/jenkins/workspace/userManagement/angular-frontend")
+                {
+                    sh '''
+                        npm install -g snyk
+                        pwd 
+                        snyk auth ${SNYK_KEY}
+                        snyk test --file=angular-go/angular-frontend/package.json --severity-threshold=low --json > snyk-report.json
+                        cat snyk-report.json 
+                    '''
+                }
+            }
+        }
+                stage('Run SAST tests') {
+            steps {
+                script {
+                    def appPath = "/var/lib/jenkins/workspace/userManagement/angular-frontend"
+                    docker.image('opensecurity/nodejsscan:latest').inside('--privileged -u root:root') {
+                        sh 'nodejsscan --json .'
                     }
                 }
-            }
-            post {
-                always {
-                    archiveArtifacts artifacts: '*_snyk_report.json', allowEmptyArchive: true
-                    cleanWs()
-                }
-            }
+            } 
         }
      /*   stage('NPM Build') {
             steps {
@@ -72,7 +74,7 @@ pipeline {
             }
         }*/
         
-       /* stage('Run Tests') {
+        stage('Run SAST tests') {
             steps {
                 script {
                     def appPath = "/var/lib/jenkins/workspace/userManagement/angular-frontend"
@@ -81,7 +83,7 @@ pipeline {
                     }
                 }
             } 
-        }*/
+        }
        /* stage('Analysis with SEMGREP') {
             steps {
                 sh "docker run -e SEMGREP_APP_TOKEN=${SEMGREP_APP_TOKEN} --rm -v \${PWD}:/src semgrep/semgrep semgrep ci "
