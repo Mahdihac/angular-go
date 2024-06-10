@@ -8,6 +8,7 @@ pipeline {
         REPORT_PATH = 'zap-reports'
         REPORT_NAME = 'report.html'
         SNYK_API = 'https://api.snyk.io'
+        SNYK_KEY = '96da1bef-797d-4ae9-8f68-0aeb73ac7229'
     }
 
     stages {
