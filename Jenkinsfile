@@ -18,20 +18,6 @@ pipeline {
                 } 
             }
         }
-        stage('Install Gitleaks') {
-            steps {
-                sh '''
-                if ! command -v gitleaks &> /dev/null
-                then
-                    echo "Gitleaks could not be found, installing..."
-                    curl -s https://api.github.com/repos/zricethezav/gitleaks/releases/latest | grep browser_download_url | grep linux | cut -d '"' -f 4 | wget -qi -
-                    tar -xvf gitleaks*.tar.gz
-                    sudo mv gitleaks /usr/local/bin/
-                fi
-                '''
-            }
-        }
-
         stage('Run Gitleaks') {
             steps {
                 script {
