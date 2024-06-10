@@ -21,7 +21,7 @@ pipeline {
         }
         stage('Run Gitleaks') {
             steps {
-                script {
+                catchError(buildResult: 'SUCCESS' , stageResult: 'FAILURE') {
                     def gitleaksStatus = sh script: 'gitleaks detect --source . --exit-code 1', returnStatus: true
                     if (gitleaksStatus != 0) {
                         error "Gitleaks detected secrets in the code!"
