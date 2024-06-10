@@ -31,9 +31,9 @@ pipeline {
         }
         stage('Run Snyk Security Scan') {
             steps {
-                withCredentials([string(credentialsId: 'org-snyk-api-token', variable: '96da1bef-797d-4ae9-8f68-0aeb73ac7229')]) {
+                withCredentials([string(credentialsId: 'Snyk-Api', variable: '96da1bef-797d-4ae9-8f68-0aeb73ac7229')]) {
                     script {
-                        def snykStatus = sh script: 'snyk auth ${SNYK_TOKEN} && snyk test --json --severity-threshold=low', returnStatus: true
+                        def snykStatus = sh script: 'snyk auth 96da1bef-797d-4ae9-8f68-0aeb73ac7229 && snyk test --json --severity-threshold=low', returnStatus: true
                         if (snykStatus != 0) {
                             error "Snyk Security scan failed. Check the logs for details."
                         }
