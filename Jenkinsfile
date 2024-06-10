@@ -22,9 +22,11 @@ pipeline {
         stage('Run Gitleaks') {
             steps {
                 catchError(buildResult: 'SUCCESS' , stageResult: 'FAILURE') {
-                    def gitleaksStatus = sh script: 'gitleaks detect --source . --exit-code 1', returnStatus: true
-                    if (gitleaksStatus != 0) {
-                        error "Gitleaks detected secrets in the code!"
+                    script {
+                        def gitleaksStatus = sh script: 'gitleaks detect --source . --exit-code 1', returnStatus: true
+                        if (gitleaksStatus != 0) {
+                            error "Gitleaks detected secrets in the code!"
+                        }
                     }
                 }
             }
