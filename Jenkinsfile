@@ -29,6 +29,16 @@ pipeline {
                 }
             }
         }
+        stage('NPM Build') {
+            steps {
+                dir("/var/lib/jenkins/workspace/userManagement/angular-frontend")
+                {
+                    sh "npm cache clean --force"
+                    sh "npm install --legacy-peer-deps --verbose"
+                    sh "npm run build"
+                }
+            }
+        }
         stage('Run Snyk Security Scan') {
             steps {
                 withCredentials([string(credentialsId: 'Snyk-Api', variable: '96da1bef-797d-4ae9-8f68-0aeb73ac7229')]) {
@@ -51,7 +61,7 @@ pipeline {
                 }
             }
         }
-        stage('NPM Build') {
+     /*   stage('NPM Build') {
             steps {
                 dir("/var/lib/jenkins/workspace/userManagement/angular-frontend")
                 {
@@ -60,7 +70,7 @@ pipeline {
                     sh "npm run build"
                 }
             }
-        }
+        }*/
         
        /* stage('Run Tests') {
             steps {
