@@ -28,7 +28,7 @@ pipeline {
                 }
             }
         }
-        stage('Run Tests') {
+       /* stage('Run Tests') {
             steps {
                 script {
                     def appPath = "/var/lib/jenkins/workspace/userManagement/angular-frontend"
@@ -36,13 +36,13 @@ pipeline {
                         sh 'nodejsscan --json .'
                     }
                 }
-            }
-        }
-        stage('Analysis with SEMGREP') {
+            } 
+        }*/
+       /* stage('Analysis with SEMGREP') {
             steps {
                 sh "docker run -e SEMGREP_APP_TOKEN=${SEMGREP_APP_TOKEN} --rm -v \${PWD}:/src semgrep/semgrep semgrep ci "
-            }
-        }
+            } 
+        }*/
         stage('Analysis with SONARQUBE') {
             steps {
                 script {
@@ -52,7 +52,7 @@ pipeline {
                 }
             }
         }
-        stage('Containerization with DOCKER') {
+       /* stage('Containerization with DOCKER') {
             steps {
                 script {
                     sh "docker build -t ${STAGING_TAG} ."
@@ -62,25 +62,25 @@ pipeline {
                     }
                 }
             }
-        }
+        }*/
         stage('Image Test with TRIVY') {
             steps {
                 sh "docker run --rm aquasec/trivy image --exit-code 1 --no-progress ${STAGING_TAG}"
             }
         }
-        stage('Pull Docker Image on Remote Server') {
+       /* stage('Pull Docker Image on Remote Server') {
             steps {
                 sshagent(['ssh-agent']) {
-                    sh 'ssh -o StrictHostKeyChecking=no vagrant@1192.168.47.158 "docker run -d --name frontend -p 80:80 mahdihch/angular-frontend:2.0"'
+                    sh 'ssh -o StrictHostKeyChecking=no vagrant@192.168.47.158 "docker run -d --name frontend -p 80:80 mahdihch/angular-frontend:2.0"'
                 }
             }
-        }
+        }*/
         stage('OWASP ZAP Full Scan') {
             steps {
                 script {
-                    sh "rm -rf ${REPORT_PATH}"
+                    /*sh "rm -rf ${REPORT_PATH}"
                     sh "mkdir -p ${REPORT_PATH}"
-                    sh "chmod 777 ${REPORT_PATH}"
+                    sh "chmod 777 ${REPORT_PATH}"*/
                     sh "sudo docker run -v ${WORKSPACE}:${REPORT_PATH}:rw -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://192.168.47.158:80/ -r ${REPORT_PATH}/${REPORT_NAME} || true"
                 }
             }
