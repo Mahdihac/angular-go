@@ -36,7 +36,7 @@ pipeline {
                         snykSecurity(
                             snykInstallation: 'snyk-install',
                             snykTokenId: 'org-snyk-api-token',
-                            targetFile: 'angular-go/angular-frontend/package.json',
+                            targetFile: 'angular-frontend/package.json',
                             failOnIssues: true,
                             reportFile: '*_snyk_report.json'
                             )
