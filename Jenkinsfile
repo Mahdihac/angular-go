@@ -58,9 +58,14 @@ pipeline {
                 script {
                     def appPath = "/var/lib/jenkins/workspace/userManagement/angular-frontend"
                     docker.image('opensecurity/nodejsscan:latest').inside('--privileged -u root:root') {
-                        sh 'nodejsscan --json .'
+                        sh 'nodejsscan --json . | tee njsscan-report.json '
                     }
                 }
+            } 
+        }
+       stage('SAST with SEMGREP') {
+            steps {
+                sh "docker run -e SEMGREP_APP_TOKEN=${SEMGREP_APP_TOKEN} --rm -v \${PWD}:/src semgrep/semgrep semgrep ci "
             } 
         }
      /*   stage('NPM Build') {
@@ -73,11 +78,7 @@ pipeline {
                 }
             }
         }*/
-       /* stage('Analysis with SEMGREP') {
-            steps {
-                sh "docker run -e SEMGREP_APP_TOKEN=${SEMGREP_APP_TOKEN} --rm -v \${PWD}:/src semgrep/semgrep semgrep ci "
-            } 
-        }*/
+
         stage('Analysis with SONARQUBE') {
             steps {
                 script {
