@@ -36,9 +36,9 @@ pipeline {
                         snykSecurity(
                             snykInstallation: 'snyk-install',
                             snykTokenId: 'org-snyk-api-token',
-                            targetFile: 'angular-frontend/package.json',
+                            targetFile: 'angular-go/angular-frontend/package.json',
                             failOnIssues: true,
-                            reportFile: 'snyk-report.json'
+                            reportFile: '*_snyk_report.json'
                             )
                        
                     }
@@ -46,7 +46,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: 'snyk-report.json', allowEmptyArchive: true
+                    archiveArtifacts artifacts: '*_snyk_report.json', allowEmptyArchive: true
                     cleanWs()
                 }
             }
