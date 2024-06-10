@@ -28,14 +28,15 @@ pipeline {
                 }
             }
         }
-            stage('SCA') {
-      steps {
-        echo 'Testing snyk'
-        snykSecurity(
-          snykInstallation: 'snyk-install',
-          snykTokenId: 'org-snyk-api-token',
-        )
-      }
+        stage('SCA') {
+          steps {
+            echo 'Testing snyk'
+            snykSecurity(
+              snykInstallation: 'snyk-install',
+              snykTokenId: 'org-snyk-api-token',
+            )
+          }
+        }
         stage('NPM Build') {
             steps {
                 dir("/var/lib/jenkins/workspace/userManagement/angular-frontend")
