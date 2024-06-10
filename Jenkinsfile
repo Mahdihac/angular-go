@@ -45,10 +45,10 @@ pipeline {
             steps {
                 dir("/var/lib/jenkins/workspace/userManagement/angular-frontend")
                 {
-                    sh "npm install -g snyk",
-                    sh "pwd",
-                    sh "snyk auth ${SNYK_KEY}",
-                    sh "snyk test --file=angular-go/angular-frontend/package.json --severity-threshold=low --json > snyk-report.json",
+                    sh "npm install -g snyk"
+                    sh "pwd"
+                    sh "snyk auth ${SNYK_KEY}"
+                    sh "snyk test --file=angular-go/angular-frontend/package.json --severity-threshold=low --json > snyk-report.json"
                     sh "cat snyk-report.json"
                 }
             }
