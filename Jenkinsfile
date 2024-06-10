@@ -44,11 +44,11 @@ pipeline {
                     }
                 }
             }
-        }
-        post {
-            always {
-                archiveArtifacts artifacts: 'snyk-report.json', allowEmptyArchive: true
-                cleanWs()
+            post {
+                always {
+                    archiveArtifacts artifacts: 'snyk-report.json', allowEmptyArchive: true
+                    cleanWs()
+                }
             }
         }
         stage('NPM Build') {
