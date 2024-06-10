@@ -33,7 +33,7 @@ pipeline {
         echo 'Testing snyk'
         snykSecurity(
           snykInstallation: 'snyk-install',
-          snykTokenId: 'snyk-api-token',
+          snykTokenId: 'org-snyk-api-token',
         )
       }
         stage('NPM Build') {
