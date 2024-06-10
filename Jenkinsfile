@@ -36,11 +36,11 @@ pipeline {
                         snykSecurity(
                             snykInstallation: 'snyk-install',
                             snykTokenId: 'org-snyk-api-token',
+                            targetFile: 'angular-frontend/package.json',
+                            failOnIssues: true,
+                            reportFile: 'snyk-report.json'
                             )
-                        def snykStatus = sh script: 'snyk auth 96da1bef-797d-4ae9-8f68-0aeb73ac7229 && snyk test  --file=angular-frontend/package.json --severity-threshold=low --json > synkreport.json', returnStatus: true
-                        if (snykStatus != 0) {
-                            error "Snyk Security scan failed. Check the logs for details."
-                        }
+                       
                     }
                 }
             }
