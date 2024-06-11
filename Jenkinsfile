@@ -79,11 +79,12 @@ pipeline {
             }
         }*/
 
-        stage('Analysis with SONARQUBE') {
+        stage('SonarQube Analysis') {
             steps {
                 script {
-                    withSonarQubeEnv(installationName: 'sonarqube-scanner') {
-                        sh "/opt/sonar-scanner/bin/sonar-scanner -Dsonar.projectKey=${ANGULARKEY} -Dsonar.sources=. -Dsonar.host.url=${SONARURL} -Dsonar.login=${ANGLOGIN}"
+                    def scannerHome = tool 'SonarScanner';
+                    withSonarQubeEnv() {
+                        sh "${scannerHome}/bin/sonar-scanner"
                     }
                 }
             }
