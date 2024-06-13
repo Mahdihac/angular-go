@@ -8,8 +8,8 @@ pipeline {
         REPORT_PATH = 'zap-reports'
         REPORT_NAME = 'report.html'
         SNYK_API = 'https://api.snyk.io'
-        FRONTEND_TAG = "mahdihch/angular-front:50"
-        BACKEND_TAG = "mahdihch/go-back:50"
+        FRONTEND_TAG = "mahdihch/angular-front:${env.BUILD_NUMBER}"
+        BACKEND_TAG = "mahdihch/go-back:${env.BUILD_NUMBER}"
     }
 
     stages {
