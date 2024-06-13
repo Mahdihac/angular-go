@@ -8,6 +8,8 @@ pipeline {
         REPORT_PATH = 'zap-reports'
         REPORT_NAME = 'report.html'
         SNYK_API = 'https://api.snyk.io'
+        FRONTEND_TAG = "mahdihch20/angular-frontend:${env.BUILD_NUMBER}"
+        BACKEND_TAG = "mahdihch20/angular-backend:${env.BUILD_NUMBER}"
     }
 
     stages {
@@ -89,17 +91,32 @@ pipeline {
                 }
             }
         }
-       /* stage('Containerization with DOCKER') {
+                stage('Build Frontend Docker Image') {
             steps {
                 script {
-                    sh "docker build -t ${STAGING_TAG} ."
-                    withCredentials([usernamePassword(credentialsId: 'tc', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                        sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}"
-                        sh "docker push ${STAGING_TAG}"
+                    dir('angular-frontend') {
+                        sh "docker build -t ${FRONTEND_TAG} ."
+                        withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                            sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}"
+                            sh "docker push ${FRONTEND_TAG}"
                     }
                 }
             }
-        }*/
+        }
+
+        stage('Build Backend Docker Image') {
+            steps {
+                script {
+                    dir('go-backend') {
+                        sh "docker build -t ${BACKEND_TAG} ."
+                        withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                            sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}"
+                            sh "docker push ${FRONTEND_TAG}"
+                        }
+                    }
+                }
+            }
+        }
         stage('Image Test with TRIVY') {
             steps {
                 sh "docker run --rm aquasec/trivy image --exit-code 1 --no-progress ${STAGING_TAG}"
