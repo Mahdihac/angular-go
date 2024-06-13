@@ -70,17 +70,6 @@ pipeline {
                 sh "docker run -e SEMGREP_APP_TOKEN=${SEMGREP_APP_TOKEN} --rm -v \${PWD}:/src semgrep/semgrep semgrep ci "
             } 
         }
-     /*   stage('NPM Build') {
-            steps {
-                dir("/var/lib/jenkins/workspace/userManagement/angular-frontend")
-                {
-                    sh "npm cache clean --force"
-                    sh "npm install --legacy-peer-deps --verbose"
-                    sh "npm run build"
-                }
-            }
-        }*/
-
         stage('SonarQube Analysis') {
             steps {
                 script {
@@ -91,7 +80,7 @@ pipeline {
                 }
             }
         }
-                stage('Build Frontend Docker Image') {
+        stage('Build Frontend Docker Image') {
             steps {
                 script {
                     dir('angular-frontend') {
@@ -103,7 +92,6 @@ pipeline {
                 }
             }
         }
-
         stage('Build Backend Docker Image') {
             steps {
                 script {
