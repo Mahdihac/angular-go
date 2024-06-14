@@ -114,27 +114,20 @@ pipeline {
                 sh "docker run -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/Library/Caches:/root/.cache/ aquasec/trivy:0.52.2 image docker.io/${BACKEND_TAG}"
             }
         }
-       /* stage('Pull Docker Image on Remote Server') {
-            steps {
-                sshagent(['ssh-agent']) {
-                    sh 'ssh -o StrictHostKeyChecking=no vagrant@192.168.47.158 "docker run -d --name frontend -p 80:80 mahdihch/angular-frontend:2.0"'
-                }
-            }
-        }*/
         stage('OWASP ZAP Full Scan') {
             steps {
                 script {
-                    /*sh "rm -rf ${REPORT_PATH}"
+                    sh "rm -rf ${REPORT_PATH}"
                     sh "mkdir -p ${REPORT_PATH}"
-                    sh "chmod 777 ${REPORT_PATH}"*/
-                    sh "sudo docker run -v ${WORKSPACE}:${REPORT_PATH}:rw -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://192.168.47.158:80/ -r ${REPORT_PATH}/${REPORT_NAME} || true"
+                    sh "chmod 777 ${REPORT_PATH}"
+                    sh "sudo docker run -v ${WORKSPACE}:${REPORT_PATH}:rw -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://10.0.110.12:80/ -r ${REPORT_PATH}/${REPORT_NAME} || true"
                 }
             }
         }
-        stage('Run Nuclei') {
+        /*stage('Run Nuclei') {
             steps {
                 sh "nuclei -u http://192.168.47.158:80 -o nuclei_report.json"
             }
-        }
+        }*/
     }
 }
