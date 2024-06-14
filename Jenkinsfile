@@ -110,8 +110,8 @@ pipeline {
             steps {
                 //sh "docker run --rm aquasec/trivy image --exit-code 1 --no-progress ${STAGING_TAG}"
                 sh "docker pull aquasec/trivy:0.52.2"
-                sh "docker run -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/Library/Caches:/root/.cache/ aquasec/trivy:0.52.2 image ${FRONTEND_TAG}"
-                sh "docker run -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/Library/Caches:/root/.cache/ aquasec/trivy:0.52.2 image ${BACKEND_TAG}"
+                sh "docker run -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/Library/Caches:/root/.cache/ aquasec/trivy:0.52.2 image docker.io/${FRONTEND_TAG}"
+                sh "docker run -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/Library/Caches:/root/.cache/ aquasec/trivy:0.52.2 image docker.io/${BACKEND_TAG}"
             }
         }
        /* stage('Pull Docker Image on Remote Server') {
