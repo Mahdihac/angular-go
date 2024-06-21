@@ -108,7 +108,6 @@ pipeline {
         }
         stage('Image Test with TRIVY') {
             steps {
-                //sh "docker run --rm aquasec/trivy image --exit-code 1 --no-progress ${STAGING_TAG}"
                 sh "docker pull aquasec/trivy:0.52.2"
                 sh "docker run -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/Library/Caches:/root/.cache/ aquasec/trivy:0.52.2 image docker.io/${FRONTEND_TAG}"
                 sh "docker run -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/Library/Caches:/root/.cache/ aquasec/trivy:0.52.2 image docker.io/${BACKEND_TAG}"
@@ -124,10 +123,7 @@ pipeline {
                 }
             }
         }
-        /*stage('Run Nuclei') {
-            steps {
-                sh "nuclei -u http://192.168.47.158:80 -o nuclei_report.json"
-            }
-        }*/
+        stage('')
+
     }
 }
