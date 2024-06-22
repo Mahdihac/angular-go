@@ -109,8 +109,8 @@ pipeline {
         stage('Image Test with TRIVY') {
             steps {
                 sh "docker pull aquasec/trivy:0.52.2"
-                sh "docker run -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/Library/Caches:/root/.cache/ aquasec/trivy:0.52.2 image docker.io/${FRONTEND_TAG}"
-                sh "docker run -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/Library/Caches:/root/.cache/ aquasec/trivy:0.52.2 image docker.io/${BACKEND_TAG}"
+                sh "docker run -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/Library/Caches:/root/.cache/ aquasec/trivy:0.52.2 image docker.io/${FRONTEND_TAG} > frontend-output.txt"
+                sh "docker run -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/Library/Caches:/root/.cache/ aquasec/trivy:0.52.2 image docker.io/${BACKEND_TAG} > backend-output.txt "  
             }
         }
         stage('OWASP ZAP Full Scan') {
