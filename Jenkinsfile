@@ -6,7 +6,7 @@ pipeline {
 
     environment {
         REPORT_PATH = 'zap-reports'
-        REPORT_NAME = 'report.html'
+        REPORT_NAME = 'report.xml'
         SNYK_API = 'https://api.snyk.io'
         FRONTEND_TAG = "mahdihch/angular-front:${env.BUILD_NUMBER}"
         BACKEND_TAG = "mahdihch/go-back:${env.BUILD_NUMBER}"
@@ -116,14 +116,23 @@ pipeline {
         stage('OWASP ZAP Full Scan') {
             steps {
                 script {
+                    sh "cd /home/user1"
+                    sh "docker-compose up"
                     sh "rm -rf ${REPORT_PATH}"
                     sh "mkdir -p ${REPORT_PATH}"
                     sh "chmod 777 ${REPORT_PATH}"
-                    sh "sudo docker run -v ${WORKSPACE}:${REPORT_PATH}:rw -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://10.0.110.12:80/ -r ${REPORT_PATH}/${REPORT_NAME} || true"
+                    sh "docker run --rm  -u root -v ${WORKSPACE}:${REPORT_PATH}:rw -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://10.0.110.7:4200/ -r ${REPORT_PATH}/${REPORT_NAME}"
                 }
             }
         }
-        stage('')
+        stage('Run Kube-Bench'){
+            steps{
+                script{
+                    sh "ssh node01@10.0.110.12"
+                    sh "kubectl apply -f https://raw.githubusercontent.com/aquasecurity/kube-bench/main/job.yaml"
+                    sh "cd /home/node01"
+                    sh "./kube_bench.sh"
+"
 
     }
 }
