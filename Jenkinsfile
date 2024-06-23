@@ -10,6 +10,7 @@ pipeline {
         SNYK_API = 'https://api.snyk.io'
         FRONTEND_TAG = "mahdihch/angular-front:${env.BUILD_NUMBER}"
         BACKEND_TAG = "mahdihch/go-back:${env.BUILD_NUMBER}"
+        SSH_PASSWORD = credentials('SSH_PASSWORD')
     }
 
     stages {
@@ -128,10 +129,11 @@ pipeline {
         stage('Run Kube-Bench'){
             steps{
                 script{
-                    sh "ssh root@10.0.110.12"
-                    sh "kubectl apply -f https://raw.githubusercontent.com/aquasecurity/kube-bench/main/job.yaml"
-                    sh "cd /home/node01"
-                    sh "./kube_bench.sh"
+                    // sh "ssh root@10.0.110.12"
+                    // sh "kubectl apply -f https://raw.githubusercontent.com/aquasecurity/kube-bench/main/job.yaml"
+                    // sh "cd /home/node01"
+                    // sh "./kube_bench.sh"
+                    sh 'sshpass -p "$SSH_PASSWORD" ssh root@10.0.110.12 "kubectl apply -f https://raw.githubusercontent.com/aquasecurity/kube-bench/main/job.yaml && cd /home/node01 && ./kube_bench.sh"'
                 }
             }
         }
