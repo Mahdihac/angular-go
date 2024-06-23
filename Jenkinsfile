@@ -123,6 +123,8 @@ pipeline {
                             sh "mkdir -p ${REPORT_PATH}"
                             sh "chmod 777 ${REPORT_PATH}"
                             sh "docker run --rm  -u root -v /home/user1:${REPORT_PATH}:rw -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://10.0.110.7:4200/ -r ${REPORT_PATH}/${REPORT_NAME}"
+                
+                        }
                 }
             }
         }
