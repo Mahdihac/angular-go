@@ -128,11 +128,12 @@ pipeline {
         stage('Run Kube-Bench'){
             steps{
                 script{
-                    sh "ssh node01@10.0.110.12"
+                    sh "ssh root@10.0.110.12"
                     sh "kubectl apply -f https://raw.githubusercontent.com/aquasecurity/kube-bench/main/job.yaml"
                     sh "cd /home/node01"
                     sh "./kube_bench.sh"
-"
-
+                }
+            }
+        }
     }
 }
