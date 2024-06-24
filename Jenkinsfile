@@ -56,7 +56,7 @@ pipeline {
                 }
             }
         }
-        stage('Run SAST tests') {
+        stage('Run NJSSCAN') {
             steps {
                 script {
                     def appPath = "/var/lib/jenkins/workspace/userManagement/angular-frontend"
@@ -66,12 +66,12 @@ pipeline {
                 }
             } 
         }
-       stage('SAST with SEMGREP') {
+       stage('Run SEMGREP') {
             steps {
                 sh "docker run -e SEMGREP_APP_TOKEN=${SEMGREP_APP_TOKEN} --rm -v \${PWD}:/src semgrep/semgrep semgrep ci "
             } 
         }
-        stage('SonarQube Analysis') {
+        stage('Run SonarQube Analysis') {
             steps {
                 script {
                     def scannerHome = tool 'SonarScanner';
@@ -107,14 +107,14 @@ pipeline {
                 }
             }
         }
-        stage('Image Test with TRIVY') {
+        stage('Run Image Test with TRIVY') {
             steps {
                 sh "docker pull aquasec/trivy:0.52.2"
                 sh "docker run -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/Library/Caches:/root/.cache/ aquasec/trivy:0.52.2 image docker.io/${FRONTEND_TAG} > frontend-output.txt"
                 sh "docker run -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/Library/Caches:/root/.cache/ aquasec/trivy:0.52.2 image docker.io/${BACKEND_TAG} > backend-output.txt "  
             }
         }
-        stage('OWASP ZAP Full Scan') {
+        stage('Run OWASP ZAP Full Scan') {
             steps {
                 script {
                         dir('/home/user1') {
