@@ -135,8 +135,30 @@ pipeline {
                     // sh "kubectl apply -f https://raw.githubusercontent.com/aquasecurity/kube-bench/main/job.yaml"
                     // sh "cd /home/node01"
                     // sh "./kube_bench.sh"
-                    sh 'sshpass -p "$SSH_PASSWORD" ssh root@10.0.110.12 "kubectl apply -f https://raw.githubusercontent.com/aquasecurity/kube-bench/main/job.yaml && cd /home/node01 && ./kube_bench.sh"'
+                    sh 'sshpass -p "$SSH_PASSWORD" ssh root@10.0.110.12 
+                    "kubectl apply -f https://raw.githubusercontent.com/aquasecurity/kube-bench/main/job.yaml && cd /home/node01 && ./kube_bench.sh"'
                 }
+            }
+        }
+        stage('Deploy'){
+            steps{
+                sh '''
+                    sshpass sshpass -p "$SSH_PASSWORD" ssh root@10.0.110.12 
+                    kubectl apply -f https://raw.githubusercontent.com/Mahdihac/k8syaml/main/front-depl.yaml
+                    kubectl apply -f https://raw.githubusercontent.com/Mahdihac/k8syaml/main/front-srv.yaml
+                    kubectl apply -f https://raw.githubusercontent.com/Mahdihac/k8syaml/main/back-depl.yaml
+                    kubectl apply -f https://raw.githubusercontent.com/Mahdihac/k8syaml/main/back-srv.yaml
+                    kubectl apply -f https://raw.githubusercontent.com/Mahdihac/k8syaml/main/back-configMap.yaml
+                    kubectl apply -f https://raw.githubusercontent.com/Mahdihac/k8syaml/main/postgres-depl.yaml
+                    kubectl apply -f https://raw.githubusercontent.com/Mahdihac/k8syaml/main/postgres-srv.yaml
+                    kubectl apply -f https://raw.githubusercontent.com/Mahdihac/k8syaml/main/postgres-configMap.yaml
+                    kubectl apply -f https://raw.githubusercontent.com/Mahdihac/k8syaml/main/postgres-configMap.yaml
+                    kubectl apply -f https://raw.githubusercontent.com/Mahdihac/k8syaml/main/db-root-cred.yaml
+                    kubectl apply -f https://raw.githubusercontent.com/Mahdihac/k8syaml/main/db-cred.yaml
+                    kubectl apply -f https://raw.githubusercontent.com/Mahdihac/k8syaml/main/pv.yaml
+                    kubectl apply -f https://raw.githubusercontent.com/Mahdihac/k8syaml/main/pvc.yaml
+                    kubectl apply -f https://raw.githubusercontent.com/Mahdihac/k8syaml/main/netPolicy.yaml
+                '''
             }
         }
     }
