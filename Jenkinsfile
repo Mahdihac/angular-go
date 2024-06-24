@@ -136,8 +136,7 @@ pipeline {
                         // sh "kubectl apply -f https://raw.githubusercontent.com/aquasecurity/kube-bench/main/job.yaml"
                         // sh "cd /home/node01"
                         // sh "./kube_bench.sh"
-                        sh 'sshpass -p "$SSH_PASSWORD" ssh root@10.0.110.12 
-                        "kubectl apply -f https://raw.githubusercontent.com/aquasecurity/kube-bench/main/job.yaml && cd /home/node01 && ./kube_bench.sh"'
+                        sh 'sshpass -p "$SSH_PASSWORD" ssh root@10.0.110.12 "kubectl apply -f https://raw.githubusercontent.com/aquasecurity/kube-bench/main/job.yaml && cd /home/node01 && ./kube_bench.sh"'
                     }
                 }
             }
