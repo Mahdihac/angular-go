@@ -116,34 +116,36 @@ pipeline {
         }
         stage('Run OWASP ZAP Full Scan') {
             steps {
-                script {
-                        dir('/home/user1') {
-                            sh "docker-compose up"
-                            sh "rm -rf ${REPORT_PATH}"
-                            sh "mkdir -p ${REPORT_PATH}"
-                            sh "chmod 777 ${REPORT_PATH}"
-                            sh "docker run --rm  -u root -v /home/user1:${REPORT_PATH}:rw -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://10.0.110.7:4200/ -r
-                            ${REPORT_PATH}/${REPORT_NAME}"
-                
+                catchError(buildResult: 'SUCCESS' , stageResult: 'FAILURE') {
+                    script {
+                            dir('/home/user1') {
+                                sh "docker-compose up"
+                                sh "rm -rf ${REPORT_PATH}"
+                                sh "mkdir -p ${REPORT_PATH}"
+                                sh "chmod 777 ${REPORT_PATH}"
+                                sh "docker run --rm  -u root -v /home/user1:${REPORT_PATH}:rw -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://10.0.110.7:4200/ -r${REPORT_PATH}/${REPORT_NAME}"
+                            }
                         }
                 }
             }
         }
         stage('Run Kube-Bench'){
             steps{
-                script{
-                    // sh "kubectl apply -f https://raw.githubusercontent.com/aquasecurity/kube-bench/main/job.yaml"
-                    // sh "cd /home/node01"
-                    // sh "./kube_bench.sh"
-                    sh 'sshpass -p "$SSH_PASSWORD" ssh root@10.0.110.12 
-                    "kubectl apply -f https://raw.githubusercontent.com/aquasecurity/kube-bench/main/job.yaml && cd /home/node01 && ./kube_bench.sh"'
+                catchError(buildResult: 'SUCCESS' , stageResult: 'FAILURE') {
+                    script{
+                        // sh "kubectl apply -f https://raw.githubusercontent.com/aquasecurity/kube-bench/main/job.yaml"
+                        // sh "cd /home/node01"
+                        // sh "./kube_bench.sh"
+                        sh 'sshpass -p "$SSH_PASSWORD" ssh root@10.0.110.12 
+                        "kubectl apply -f https://raw.githubusercontent.com/aquasecurity/kube-bench/main/job.yaml && cd /home/node01 && ./kube_bench.sh"'
+                    }
                 }
             }
         }
         stage('Deploy'){
             steps{
                 sh '''
-                    sshpass sshpass -p "$SSH_PASSWORD" ssh root@10.0.110.12 
+                    sshpass sshpass -p "$SSH_PASSWORD" ssh node01@10.0.110.12 
                     kubectl apply -f https://raw.githubusercontent.com/Mahdihac/k8syaml/main/front-depl.yaml
                     kubectl apply -f https://raw.githubusercontent.com/Mahdihac/k8syaml/main/front-srv.yaml
                     kubectl apply -f https://raw.githubusercontent.com/Mahdihac/k8syaml/main/back-depl.yaml
